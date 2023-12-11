@@ -8,7 +8,7 @@ const defaultState = { index: null, value: null };
 
 export default function MemoryGame() {
   const [firstCard, setFirstCard] = useState(defaultState);
-  const [secondCard, setSecondCard] = useState(defaultState);
+  const [secondCard, setSecondCard] = useState(defaultState); //explain use state
   const [remainingCards, setRemainingCards] = useState(items);
   const [moves, setMoves] = useState(0);
 
@@ -17,26 +17,34 @@ export default function MemoryGame() {
   const handleClick = (index, value) => {
     clearTimeout(timer.current);
 
+    // If the same card is clicked again, reset it
+    if (firstCard.index === index) {
+      setFirstCard(defaultState);
+      setMoves(moves + 1);
+      return; // Exit the function early, as the card was flipped back
+    }
+
+    if (firstCard.index === null || secondCard.index !== null) {
+      // Set the clicked card as the first card
+      setFirstCard({ index, value });
+      setSecondCard(defaultState);
+      setMoves(moves + 1);
+    } else {
+      // Set the clicked card as the second card
+      setSecondCard({ index, value });
+      setMoves(moves + 1);
+
+      if (firstCard.value === value) {
+        // If cards match, remove them from remaining cards
+        setRemainingCards(remainingCards.filter((card) => card !== value));
+      }
+    }
+
+    // Set a timeout to flip back cards after 1 second
     timer.current = setTimeout(() => {
       setFirstCard(defaultState);
       setSecondCard(defaultState);
     }, 1000);
-
-    if (
-      firstCard.index === null ||
-      (firstCard.index !== null && secondCard.index !== null)
-    ) {
-      setSecondCard(defaultState);
-      setFirstCard({ index, value });
-      setMoves((moves) => moves + 1);
-    } else if (secondCard.index === null && firstCard.index !== index) {
-      setSecondCard({ index, value });
-      setMoves((moves) => moves + 1);
-
-      if (firstCard.value === value) {
-        setRemainingCards(remainingCards.filter((card) => card !== value));
-      }
-    }
   };
 
   return (
